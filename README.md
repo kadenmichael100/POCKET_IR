@@ -2,11 +2,11 @@ TL;DR — What to look for
 
 - Compact, battery-powered ATmega328P firmware + hardware that learns 38kHz IR, stores codes to EEPROM, and implements multi-brand remote logic.
 - Engineering highlights: zero-pin bandgap battery sensing, quad-IR TX array, SPI-driven SH1106 OLED, and a 29-command universal blaster.
-- Quick review path for engineers: 1) Gallery section below for hardware photos & screenshots, 2) README "Software Architecture" section for decoding/storage approach, 3) firmware source (if present) for implementation details.
+- Quick review path for engineers: 1) See the device below, 2) README "Software Architecture" section for decoding/storage approach, 3) firmware source (if present)
 
 For hiring managers
 
-- Time to first-pass: Read the TL;DR above and then scroll to the Gallery section for photos and demo media embedded directly in this README.
+- Time to first-pass: Read the TL;DR above and then scroll through for photos and demo media embedded directly in this README.
 - Skills demonstrated: embedded C/C++ (AVR), low-power hardware design, PCB layout/assembly, digital signal capture & decoding (IR protocols), system-level tradeoffs (power vs. features).
 - Want to run it quickly? See Build & Flash Instructions at the bottom — include avr-gcc or avrdude commands in the repo for quick testing.
 
@@ -14,29 +14,11 @@ For hiring managers
 
 # Pocket-IR: Credit-Card Sized Universal Remote & Signal Learning System
 
-A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation)...
+A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation).
 
----
-
-## 📸 Gallery (embedded)
-
-Front view — Pocket-IR PCB & assembled unit
+**Front view — Pocket-IR PCB & assembled unit**
 
 ![Front view](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7540.jpeg)
-
-Demo (animated GIF)
-
-![Demo Large](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7553%20(1).gif)
-
-Compact demo (smaller GIF)
-
-![Demo GIF](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7552.gif)
-
-Screenshots
-
-![Screenshot 120835](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/Screenshot%202026-08-24%20120835.png)
-
-![Screenshot 133445](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/Screenshot%202026-08-24%20133445.png)
 
 ---
 
@@ -84,7 +66,7 @@ Includes an embedded Pong mini-game utilizing floating-point sub-pixel physics f
 
 ### 1️⃣ 38kHz Signal Capture & EEPROM Storage Engine
 
-When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the payload to EEPROM.
+When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the payload into non-volatile storage.
 
 **Code:**
 ```cpp
@@ -100,11 +82,11 @@ int addr = EEPROM_START_ADR + (assignedSlot * sizeof(IRSlot));
 EEPROM.put(addr, captured);
 ```
 
-![IMG_7552](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7552.gif)
+![Demo GIF](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7552.gif)
 
 ### 2️⃣ Multi-Brand Protocol Translator
 
-Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands (CMD_VO...)
+Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands to brand-specific IR transmission functions.
 
 **Code:**
 ```cpp
@@ -124,7 +106,7 @@ if (strcmp(brand, "SAMSUNG") == 0) {
 
 ### 3️⃣ Zero-Pin Bandgap Battery Sensing (readVcc)
 
-To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the reference.
+To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the reference to measure against.
 
 **Formula:**
 ```
@@ -149,12 +131,24 @@ long readVcc() {
 
 ---
 
+## 🎨 Hardware Design & PCB Layout
+
+The Pocket-IR is engineered as a dual-layer PCB sandwich with careful attention to signal integrity, power distribution, and compact form factor. The board measures 55×85mm (credit-card sized) and integrates high-speed SPI signaling for the OLED display alongside precision analog circuitry for IR reception and transmission.
+
+**UI Screenshots:**
+
+![Screenshot 120835](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/Screenshot%202026-08-24%20120835.png)
+
+![Screenshot 133445](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/Screenshot%202026-08-24%20133445.png)
+
+---
+
 ## ⚖️ Engineering Trade-Offs & Solutions
 
 ### Hardware SPI vs. I2C Bus Bottlenecks
 **Problem:** Standard I2C OLED screens operating at 400kHz caused noticeable input lag during menu updates and screen redraws.
 
-**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame transfer execution dropped significantly, allowing instant UI redraws and high frame rates for g...
+**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame transfer execution dropped significantly, allowing instant UI redraws and high frame rates for graphics and animations.
 
 ---
 
