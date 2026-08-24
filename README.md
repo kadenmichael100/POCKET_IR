@@ -2,11 +2,11 @@ TL;DR — What to look for
 
 - Compact, battery-powered ATmega328P firmware + hardware that learns 38kHz IR, stores codes to EEPROM, and implements multi-brand remote logic.
 - Engineering highlights: zero-pin bandgap battery sensing, quad-IR TX array, SPI-driven SH1106 OLED, and a 29-command universal blaster.
-- Quick review path for engineers: 1) Gallery section below for hardware photos & screenshots, 2) README "Software Architecture" section for decoding/storage approach, 3) firmware source (if present) for implementation details.
+- Quick review path for engineers: 1) assets/images/gallery.md (hardware photos & screenshots), 2) README "Software Architecture" section for decoding/storage approach, 3) firmware source (if present)[...]
 
 For hiring managers
 
-- Time to first-pass: Read the TL;DR above and then scroll to the Gallery section for photos and demo media embedded directly in this README.
+- Time to first-pass: Read the TL;DR above and then open assets/images/gallery.md for photos and demo media.
 - Skills demonstrated: embedded C/C++ (AVR), low-power hardware design, PCB layout/assembly, digital signal capture & decoding (IR protocols), system-level tradeoffs (power vs. features).
 - Want to run it quickly? See Build & Flash Instructions at the bottom — include avr-gcc or avrdude commands in the repo for quick testing.
 
@@ -14,29 +14,9 @@ For hiring managers
 
 # Pocket-IR: Credit-Card Sized Universal Remote & Signal Learning System
 
-A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation)...
+A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation), an[...]
 
----
-
-## 📸 Gallery (embedded)
-
-Front view — Pocket-IR PCB & assembled unit
-
-![Front view](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7540.jpeg)
-
-Demo (animated GIF)
-
-![Demo Large](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7553%20(1).gif)
-
-Compact demo (smaller GIF)
-
-![Demo GIF](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7552.gif)
-
-Screenshots
-
-![Screenshot 120835](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/Screenshot%202026-08-24%20120835.png)
-
-![Screenshot 133445](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/Screenshot%202026-08-24%20133445.png)
+[Hardware gallery](./assets/images/gallery.md)
 
 ---
 
@@ -58,10 +38,10 @@ Screenshots
 
 ## ⚡ Key Engineering Features
 
-![Demo Large](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7553%20(1).gif)
+![Demo](./assets/images/IMG_7553-1.gif)
 
 ### 38kHz Signal Capture & Storage
-Receives any 38kHz IR command, decodes the protocol, address bitmask, and command code, then saves it into non-volatile EEPROM across 10 customizable input slots.
+Receives any 38kHz IR command, decodes the protocol, address, and command data, and saves it into non-volatile EEPROM across 10 customizable input slots.
 
 ### Full Multi-Brand TV Remote Engine
 Out-of-the-box support for Samsung, Sony, LG, Roku, Vizio, Panasonic, Toshiba, Hisense, and Apple TV. Drives Volume, Channel, Mute, Directional Navigation, and Selection commands.
@@ -84,7 +64,7 @@ Includes an embedded Pong mini-game utilizing floating-point sub-pixel physics f
 
 ### 1️⃣ 38kHz Signal Capture & EEPROM Storage Engine
 
-When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the payload to EEPROM.
+When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the pay[...[...]
 
 **Code:**
 ```cpp
@@ -100,11 +80,11 @@ int addr = EEPROM_START_ADR + (assignedSlot * sizeof(IRSlot));
 EEPROM.put(addr, captured);
 ```
 
-![IMG_7552](https://raw.githubusercontent.com/kadenmichael100/POCKET_IR/25e26d3089dc017c2fb67af5d3ef29edcceda74c/IMG_7552.gif)
+![IMG_7552](./assets/images/IMG_7552.gif)
 
 ### 2️⃣ Multi-Brand Protocol Translator
 
-Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands (CMD_VO...)
+Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands (CMD_VO[...[...]
 
 **Code:**
 ```cpp
@@ -124,7 +104,7 @@ if (strcmp(brand, "SAMSUNG") == 0) {
 
 ### 3️⃣ Zero-Pin Bandgap Battery Sensing (readVcc)
 
-To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the reference.
+To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the re[...[...]
 
 **Formula:**
 ```
@@ -154,7 +134,29 @@ long readVcc() {
 ### Hardware SPI vs. I2C Bus Bottlenecks
 **Problem:** Standard I2C OLED screens operating at 400kHz caused noticeable input lag during menu updates and screen redraws.
 
-**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame transfer execution dropped significantly, allowing instant UI redraws and high frame rates for g...
+**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame transfer execution dropped significantly, allowing instant UI redraws and high frame rates for g[...]
+
+### Battery Direct Drive vs. Boost Converter Efficiency
+**Problem:** Step-up boost converters add high-frequency switching noise, increase PCB component counts, and consume quiescent current during standby.
+
+**Solution:** Running the ATmega328P at an 8MHz internal clock allows the microcontroller to operate down to 2.7V safely. This enabled direct drive operation from 3x AAA batteries (3.0V – 4.5V [...]
+
+### Timer Collision Resolution (safeTone)
+**Problem:** Standard hardware timer audio functions (tone()) interfere with timer registers needed by IRremote for precise 38kHz modulation.
+
+**Solution:** Engineered safeTone(), a custom bit-banged audio driver that manages piezoelectric frequencies using microsecond delay loops, leaving internal hardware timers completely dedicated t[...]
+
+---
+
+## 📸 Hardware Design & Enclosure
+
+**Form Factor:** 55mm x 85mm Credit Card Dimensions.
+
+**Assembly Process:** SMT assembly for small surface-mount passives combined with hand-soldered through-hole components for structural parts (switch, headers, and display pins).
+
+**Protective Enclosure:** Industrial aesthetic featuring an unpopulated PCB panel repurposed as a protective front faceplate, secured via four M3 nylon screws and standoffs.
+
+[See hardware gallery](./assets/images/gallery.md)
 
 ---
 
@@ -173,3 +175,4 @@ long readVcc() {
 - **Clock:** Internal 8MHz
 
 Compile and flash via ISP header.
+```
