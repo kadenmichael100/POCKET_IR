@@ -1,6 +1,6 @@
 # Pocket-IR: Credit-Card Sized Universal Remote & Embedded Gaming Console
 
-A bare-metal ATmega328P embedded system featuring sub-pixel physics game rendering, raw EEPROM IR pulse learning, a 29-code TV-B-Gone sequence, and ultra-low-power deep sleep management. Designed on a 55x85mm credit-card footprint powered directly by 3x AAA batteries.
+A bare-metal ATmega328P embedded system featuring sub-pixel physics game rendering, raw EEPROM IR pulse learning, a 29-code TV-B-Gone sequence, and ultra-low-power deep sleep management. Designed on a credit card form factor PCB with 1.3" OLED display, quad-IR LED array, and multi-click input engine.
 
 ![IMG_7540](./IMG_7540.jpeg)
 
@@ -23,12 +23,7 @@ A bare-metal ATmega328P embedded system featuring sub-pixel physics game renderi
 
 ## ⚙️ Key Engineering Features
 
-<!-- Demo video inserted: IMG_7553.mov (MOV file hosted in repository) -->
-
-<video controls loop width="600">
-  <source src="./IMG_7553.mov" type="video/quicktime">
-  Your browser does not support the video tag. You can <a href="./IMG_7553.mov">download the video</a>.
-</video>
+![Demo](./IMG_7553%20(1).gif)
 
 ### 🎮 Smart Layer Input Engine
 Supports Single-Click (Context Action), Double-Click (Smart/Normal Layer toggle), and Triple-Click (Learned vs. Preset swap) on a single physical center switch.
@@ -51,7 +46,7 @@ Captures raw IR protocols, address bits, and command structures into non-volatil
 
 ### 1️⃣ Zero-Pin Bandgap Battery Sensing (readVcc)
 
-Instead of using an external voltage divider—which constantly draws current or requires an extra GPIO pin to switch—the system measures VCC internally. By selecting the internal 1.1V bandgap v[...] 
+Instead of using an external voltage divider—which constantly draws current or requires an extra GPIO pin to switch—the system measures VCC internally. By selecting the internal 1.1V bandgap reference and ratiometric measurement, we achieve precise voltage monitoring at zero GPIO cost.
 
 **Formula:**
 ```
@@ -76,7 +71,7 @@ long readVcc() {
 
 ### 2️⃣ Multi-Click & Debounce Input State Machine
 
-The 5-way switch leverages a debouncing and timing window engine inside `handleRemoteInput()`. It calculates differential release times to distinguish between single-clicks, layer switches, and pr[...] 
+The 5-way switch leverages a debouncing and timing window engine inside `handleRemoteInput()`. It calculates differential release times to distinguish between single-clicks, layer switches, and preset/learned mode toggles with sub-millisecond precision.
 
 **Code:**
 ```cpp
@@ -93,7 +88,7 @@ if (clickCount > 0 && debouncedClickState == HIGH) {
 
 ### 3️⃣ Sub-Pixel Ball Physics Engine
 
-To prevent motion stuttering on low-resolution monochrome OLED screens, ball position and velocity are calculated using floating-point operations. The coordinates are cast to integers only at the [...] 
+To prevent motion stuttering on low-resolution monochrome OLED screens, ball position and velocity are calculated using floating-point operations. The coordinates are cast to integers only at the display layer, enabling smooth diagonal motion that would otherwise appear jittery.
 
 **Code:**
 ```cpp
@@ -113,7 +108,7 @@ ballVy = hitOffset * 0.25; // Imparts spin based on paddle contact point
 
 **Dimensions:** 55mm x 85mm (Credit Card Form Factor)
 
-**Assembly Strategy:** Hybrid approach—JLCPCB surface-mount assembly (SMT) for passives and ICs, coupled with manual hand-soldering for high-stress through-hole (THT) connectors, switch, and OL[...] 
+**Assembly Strategy:** Hybrid approach—JLCPCB surface-mount assembly (SMT) for passives and ICs, coupled with manual hand-soldering for high-stress through-hole (THT) connectors, switch, and OLED display headers. This balances cost, turnaround time, and mechanical reliability.
 
 **Protective Sandwich:** Decorative faceplate fabricated from standard PCB substrate mounted with four M3 nylon standoffs to protect the screen.
 
