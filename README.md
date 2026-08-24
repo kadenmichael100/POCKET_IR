@@ -2,12 +2,7 @@
 
 A bare-metal ATmega328P embedded system featuring sub-pixel physics game rendering, raw EEPROM IR pulse learning, a 29-code TV-B-Gone sequence, and ultra-low-power deep sleep management. Designed on a 55x85mm credit-card footprint powered directly by 3x AAA batteries.
 
-## 📸 Project Images
-
 ![IMG_7540](./IMG_7540.jpeg)
-![IMG_7541](./IMG_7541.jpeg)
-![IMG_7542](./IMG_7542.jpeg)
-![IMG_7543](./IMG_7543.jpeg)
 
 ---
 
