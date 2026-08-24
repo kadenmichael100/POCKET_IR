@@ -112,7 +112,7 @@ ballVy = hitOffset * 0.25; // Imparts spin based on paddle contact point
 
 **Protective Sandwich:** Decorative faceplate fabricated from standard PCB substrate mounted with four M3 nylon standoffs to protect the screen.
 
-![IMG_7553 (1)](./IMG_7553%20(1).gif)
+![Screenshot 2026-08-24 120835](./Screenshot 2026-08-24 120835.png)
 
 ---
 
