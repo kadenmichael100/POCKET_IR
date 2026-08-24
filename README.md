@@ -14,7 +14,7 @@ For hiring managers
 
 # Pocket-IR: Credit-Card Sized Universal Remote & Signal Learning System
 
-A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation).
+A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation), and executing a 29-code universal power blasting sequence. Designed on a 55x85mm credit-card footprint powered directly by 3x AAA batteries.
 
 **Front view — Pocket-IR PCB & assembled unit**
 
@@ -66,7 +66,7 @@ Includes an embedded Pong mini-game utilizing floating-point sub-pixel physics f
 
 ### 1️⃣ 38kHz Signal Capture & EEPROM Storage Engine
 
-When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the payload into non-volatile storage.
+When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the payload directly into non-volatile EEPROM.
 
 **Code:**
 ```cpp
@@ -86,7 +86,7 @@ EEPROM.put(addr, captured);
 
 ### 2️⃣ Multi-Brand Protocol Translator
 
-Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands to brand-specific IR transmission functions.
+Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands (CMD_VOL_UP, CMD_NAV_LEFT, etc.) into brand-specific encoding functions.
 
 **Code:**
 ```cpp
@@ -106,7 +106,7 @@ if (strcmp(brand, "SAMSUNG") == 0) {
 
 ### 3️⃣ Zero-Pin Bandgap Battery Sensing (readVcc)
 
-To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the reference to measure against.
+To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the reference voltage.
 
 **Formula:**
 ```
@@ -131,9 +131,15 @@ long readVcc() {
 
 ---
 
-## 🎨 Hardware Design & PCB Layout
+## 🎨 Hardware Design & Enclosure
 
-The Pocket-IR is engineered as a dual-layer PCB sandwich with careful attention to signal integrity, power distribution, and compact form factor. The board measures 55×85mm (credit-card sized) and integrates high-speed SPI signaling for the OLED display alongside precision analog circuitry for IR reception and transmission.
+The Pocket-IR is engineered as a dual-layer PCB sandwich with careful attention to signal integrity, power distribution, and compact form factor. The board measures 55×85mm (credit-card sized).
+
+**Form Factor:** 55mm x 85mm Credit Card Dimensions.
+
+**Assembly Process:** SMT assembly for small surface-mount passives combined with hand-soldered through-hole components for structural parts (switch, headers, and display pins).
+
+**Protective Enclosure:** Industrial aesthetic featuring an unpopulated PCB panel repurposed as a protective front faceplate, secured via four M3 nylon screws and standoffs.
 
 **UI Screenshots:**
 
@@ -148,7 +154,17 @@ The Pocket-IR is engineered as a dual-layer PCB sandwich with careful attention 
 ### Hardware SPI vs. I2C Bus Bottlenecks
 **Problem:** Standard I2C OLED screens operating at 400kHz caused noticeable input lag during menu updates and screen redraws.
 
-**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame transfer execution dropped significantly, allowing instant UI redraws and high frame rates for graphics and animations.
+**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame transfer execution dropped significantly, allowing instant UI redraws and high frame rates for graphics rendering.
+
+### Battery Direct Drive vs. Boost Converter Efficiency
+**Problem:** Step-up boost converters add high-frequency switching noise, increase PCB component counts, and consume quiescent current during standby.
+
+**Solution:** Running the ATmega328P at an 8MHz internal clock allows the microcontroller to operate down to 2.7V safely. This enabled direct drive operation from 3x AAA batteries (3.0V – 4.5V range) with microamp deep sleep current draw.
+
+### Timer Collision Resolution (safeTone)
+**Problem:** Standard hardware timer audio functions (tone()) interfere with timer registers needed by IRremote for precise 38kHz modulation.
+
+**Solution:** Engineered safeTone(), a custom bit-banged audio driver that manages piezoelectric frequencies using microsecond delay loops, leaving internal hardware timers completely dedicated to IR transmission.
 
 ---
 
@@ -167,3 +183,9 @@ The Pocket-IR is engineered as a dual-layer PCB sandwich with careful attention 
 - **Clock:** Internal 8MHz
 
 Compile and flash via ISP header.
+
+```bash
+avr-gcc -mmcu=atmega328p -DF_CPU=8000000UL -O2 -Wall -c firmware.c
+avr-objcopy -O ihex firmware.elf firmware.hex
+avrdude -c usbasp -p atmega328p -U flash:w:firmware.hex:i
+```
