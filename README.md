@@ -2,7 +2,7 @@
 
 A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation),[...]
 
-![IMG_7540](./IMG_7540.jpeg)
+[Hardware gallery](./assets/images/gallery.md)
 
 ---
 
@@ -142,9 +142,7 @@ long readVcc() {
 
 **Protective Enclosure:** Industrial aesthetic featuring an unpopulated PCB panel repurposed as a protective front faceplate, secured via four M3 nylon screws and standoffs.
 
-![Screenshot 2026-08-24 120835](./Screenshot%202026-08-24%20120835.png)
-
-![Screenshot 2026-08-24 133445](./Screenshot%202026-08-24%20133445.png)
+[See hardware gallery](./assets/images/gallery.md)
 
 ---
 
