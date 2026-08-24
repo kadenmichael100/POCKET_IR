@@ -1,6 +1,20 @@
+TL;DR — What to look for
+
+- Compact, battery-powered ATmega328P firmware + hardware that learns 38kHz IR, stores codes to EEPROM, and implements multi-brand remote logic.
+- Engineering highlights: zero-pin bandgap battery sensing, quad-IR TX array, SPI-driven SH1106 OLED, and a 29-command universal blaster.
+- Quick review path for engineers: 1) assets/images/gallery.md (hardware photos & screenshots), 2) README "Software Architecture" section for decoding/storage approach, 3) firmware source (if present).
+
+For hiring managers
+
+- Time to first-pass: Read the TL;DR above and then open assets/images/gallery.md for photos and demo media.
+- Skills demonstrated: embedded C/C++ (AVR), low-power hardware design, PCB layout/assembly, digital signal capture & decoding (IR protocols), system-level tradeoffs (power vs. features).
+- Want to run it quickly? See Build & Flash Instructions at the bottom — include avr-gcc or avrdude commands in the repo for quick testing.
+
+---
+
 # Pocket-IR: Credit-Card Sized Universal Remote & Signal Learning System
 
-A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation),[...]
+A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation), and executing a 29-code universal power blasting sequence. Designed on a 55x85mm credit-card footprint powered directly by 3x AAA batteries.
 
 [Hardware gallery](./assets/images/gallery.md)
 
@@ -24,7 +38,7 @@ A bare-metal ATmega328P embedded system capable of learning, decoding, and stori
 
 ## ⚡ Key Engineering Features
 
-![Demo](./IMG_7553%20(1).gif)
+![Demo](./assets/images/IMG_7553-1.gif)
 
 ### 38kHz Signal Capture & Storage
 Receives any 38kHz IR command, decodes the protocol, address, and command data, and saves it into non-volatile EEPROM across 10 customizable input slots.
@@ -66,7 +80,7 @@ int addr = EEPROM_START_ADR + (assignedSlot * sizeof(IRSlot));
 EEPROM.put(addr, captured);
 ```
 
-![IMG_7552](./IMG_7552.gif)
+![IMG_7552](./assets/images/IMG_7552.gif)
 
 ### 2️⃣ Multi-Brand Protocol Translator
 
