@@ -23,6 +23,13 @@ A bare-metal ATmega328P embedded system featuring sub-pixel physics game renderi
 
 ## ⚙️ Key Engineering Features
 
+<!-- Demo video inserted: IMG_7553.mov (MOV file hosted in repository) -->
+
+<video controls loop width="600">
+  <source src="./IMG_7553.mov" type="video/quicktime">
+  Your browser does not support the video tag. You can <a href="./IMG_7553.mov">download the video</a>.
+</video>
+
 ### 🎮 Smart Layer Input Engine
 Supports Single-Click (Context Action), Double-Click (Smart/Normal Layer toggle), and Triple-Click (Learned vs. Preset swap) on a single physical center switch.
 
@@ -44,7 +51,7 @@ Captures raw IR protocols, address bits, and command structures into non-volatil
 
 ### 1️⃣ Zero-Pin Bandgap Battery Sensing (readVcc)
 
-Instead of using an external voltage divider—which constantly draws current or requires an extra GPIO pin to switch—the system measures VCC internally. By selecting the internal 1.1V bandgap voltage as the ADC input and setting VCC as the ADC reference, the microcontroller back-calculates the exact operating voltage.
+Instead of using an external voltage divider—which constantly draws current or requires an extra GPIO pin to switch—the system measures VCC internally. By selecting the internal 1.1V bandgap v[...] 
 
 **Formula:**
 ```
@@ -69,7 +76,7 @@ long readVcc() {
 
 ### 2️⃣ Multi-Click & Debounce Input State Machine
 
-The 5-way switch leverages a debouncing and timing window engine inside `handleRemoteInput()`. It calculates differential release times to distinguish between single-clicks, layer switches, and prolonged holds.
+The 5-way switch leverages a debouncing and timing window engine inside `handleRemoteInput()`. It calculates differential release times to distinguish between single-clicks, layer switches, and pr[...] 
 
 **Code:**
 ```cpp
@@ -86,7 +93,7 @@ if (clickCount > 0 && debouncedClickState == HIGH) {
 
 ### 3️⃣ Sub-Pixel Ball Physics Engine
 
-To prevent motion stuttering on low-resolution monochrome OLED screens, ball position and velocity are calculated using floating-point operations. The coordinates are cast to integers only at the rendering stage.
+To prevent motion stuttering on low-resolution monochrome OLED screens, ball position and velocity are calculated using floating-point operations. The coordinates are cast to integers only at the [...] 
 
 **Code:**
 ```cpp
@@ -102,33 +109,11 @@ ballVy = hitOffset * 0.25; // Imparts spin based on paddle contact point
 
 ---
 
-## 🏗️ Engineering Trade-Offs & Challenges
-
-### Hardware SPI vs. I2C Bus Bottlenecks
-
-**Problem:** Standard I2C OLED screens at 400kHz refreshed too slowly, creating visible screen tearing and input lag during game rendering loops.
-
-**Solution:** Switched to a 4-wire Hardware SPI interface using dedicated MOSI and SCK pins. Frame rendering time dropped significantly, allowing the loop to maintain a stable ~60 FPS refresh rate.
-
-### Battery Direct Drive vs. Power Boost Converter
-
-**Problem:** Boost converters add switching noise, increase PCB component counts, and reduce passive battery runtime due to baseline quiescent current draw.
-
-**Solution:** Configured the ATmega328P to run at an 8MHz internal clock. This allowed safe microcontroller operation down to 2.7V, enabling direct power supply from 3x AAA batteries (3.0V – 4.5V range).
-
-### Timer Collision Mitigation (safeTone)
-
-**Problem:** Standard hardware timer-based tone generation (`tone()`) corrupted the timing registers used by IRremote during signal transmission.
-
-**Solution:** Built a bit-banged PWM audio synthesizer function (`safeTone`) that runs directly off software timing loops during active playback, preserving system hardware timers for IR carrier generation.
-
----
-
-## 🖥️ PCB Hardware & Layout
+## 🏗️ PCB Hardware & Layout
 
 **Dimensions:** 55mm x 85mm (Credit Card Form Factor)
 
-**Assembly Strategy:** Hybrid approach—JLCPCB surface-mount assembly (SMT) for passives and ICs, coupled with manual hand-soldering for high-stress through-hole (THT) connectors, switch, and OLED breakout board.
+**Assembly Strategy:** Hybrid approach—JLCPCB surface-mount assembly (SMT) for passives and ICs, coupled with manual hand-soldering for high-stress through-hole (THT) connectors, switch, and OL[...] 
 
 **Protective Sandwich:** Decorative faceplate fabricated from standard PCB substrate mounted with four M3 nylon standoffs to protect the screen.
 
