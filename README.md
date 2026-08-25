@@ -1,8 +1,10 @@
 TL;DR — What to look for
 
-- Compact, battery-powered ATmega328P firmware + hardware that learns 38kHz IR, stores codes to EEPROM, and implements multi-brand remote logic.
-- Engineering highlights: zero-pin bandgap battery sensing, quad-IR TX array, SPI-driven SH1106 OLED, and a 29-command universal blaster.
-- Quick review path for engineers: 1) assets/images/gallery.md (hardware photos & screenshots), 2) README "Software Architecture" section for decoding/storage approach, 3) firmware source (if present)[...]
+Pocket‑IR — an ATmega328P 38kHz IR learning remote + 29‑code universal blaster with SH1106 UI and low‑power features.
+
+Full functionality requires the custom PCB (Gerbers + BOM available in Releases); a documented “breadboard mode” lets you run most firmware features with an Arduino/Nano, SH1106 breakout, one IR LED, an IR receiver, and a buzzer.
+
+How to try without the PCB: see the Quickstart "Try it without the PCB (breadboard mode)" section below for a minimal parts list and wiring diagram.
 
 For hiring managers
 
@@ -14,7 +16,7 @@ For hiring managers
 
 # Pocket-IR: Credit-Card Sized Universal Remote & Signal Learning System
 
-A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation), an[...]
+A bare-metal ATmega328P embedded system capable of learning, decoding, and storing arbitrary 38kHz IR signals into EEPROM, providing full multi-brand TV control (volume, channels, menu navigation)[...]
 
 [Hardware gallery](./assets/images/gallery.md)
 
@@ -64,7 +66,7 @@ Includes an embedded Pong mini-game utilizing floating-point sub-pixel physics f
 
 ### 1️⃣ 38kHz Signal Capture & EEPROM Storage Engine
 
-When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the pay[...[...]
+When capturing a remote control signal, the active IR receiver samples the incoming 38kHz bursts. The software decodes the protocol enum, address bitmask, and command code, then serializes the pay[...]
 
 **Code:**
 ```cpp
@@ -84,7 +86,7 @@ EEPROM.put(addr, captured);
 
 ### 2️⃣ Multi-Brand Protocol Translator
 
-Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands (CMD_VO[...[...]
+Rather than storing bloated raw pulse arrays for standard electronics, the system stores protocol-specific hex maps in Flash memory. The execution loop dynamically routes standard commands (CMD_VO[...]
 
 **Code:**
 ```cpp
@@ -104,7 +106,7 @@ if (strcmp(brand, "SAMSUNG") == 0) {
 
 ### 3️⃣ Zero-Pin Bandgap Battery Sensing (readVcc)
 
-To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the re[...[...]
+To prevent parasitic battery drain through resistor dividers, supply voltage is computed internally. The internal 1.1V reference (VREF) is connected to the ADC multiplexer while VCC acts as the r[...]
 
 **Formula:**
 ```
@@ -175,4 +177,3 @@ long readVcc() {
 - **Clock:** Internal 8MHz
 
 Compile and flash via ISP header.
-```
