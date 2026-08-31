@@ -8,8 +8,6 @@ For hiring managers
 
 - Time to first-pass: Read the TL;DR above and then scroll through for photos and demo media embedded directly in this README.
 - Skills demonstrated: embedded C/C++ (AVR), low-power hardware design, PCB layout/assembly, digital signal capture & decoding (IR protocols), system-level tradeoffs (power vs. features).
-- Want to run it quickly? See Build & Flash Instructions at the bottom — include avr-gcc or avrdude commands in the repo for quick testing.
-
 ---
 
 # Pocket-IR: Credit-Card Sized Universal Remote & Signal Learning System
